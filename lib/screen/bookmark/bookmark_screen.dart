@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:tourism_app/model/tourism.dart';
+import 'package:provider/provider.dart';
 import 'package:tourism_app/screen/home/tourism_card_widget.dart';
 import 'package:tourism_app/static/navigation_route.dart';
+import 'package:tourism_app/provider/detail/bookmark_list_provider.dart';
 
 class BookmarkScreen extends StatelessWidget {
   const BookmarkScreen({super.key});
@@ -10,20 +11,33 @@ class BookmarkScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Bookmark List")),
-      body: ListView.builder(
-        itemCount: bookmarkTourismList.length,
-        itemBuilder: (context, index) {
-          final tourism = bookmarkTourismList[index];
-          return TourismCard(
-            tourism: tourism,
-            onTap: () {
-              Navigator.pushNamed(
-                context,
-                NavigationRoute.detailRoute.name,
-                arguments: tourism,
-              );
-            },
-          );
+      body: Consumer<BookmarkListProvider>(
+        builder: (context, value, child) {
+          final bookmarkList = value.bookMarkList;
+          return switch (bookmarkList.isNotEmpty) {
+            true => ListView.builder(
+              itemCount: bookmarkList.length,
+              itemBuilder: (context, index) {
+                final tourism = bookmarkList[index];
+                return TourismCard(
+                  tourism: tourism,
+                  onTap: () {
+                    Navigator.pushNamed(
+                      context,
+                      NavigationRoute.detailRoute.name,
+                      arguments: tourism,
+                    );
+                  },
+                );
+              },
+            ),
+            _ => const Center(
+                child: Text(
+                  "No Bookmark",
+                  style: TextStyle(fontSize: 20),
+                ),
+              ),
+          };
         },
       ),
     );
