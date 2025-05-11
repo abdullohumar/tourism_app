@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:tourism_app/data/api/api_service.dart';
-import 'package:tourism_app/data/model/tourism_list_response.dart';
+import 'package:provider/provider.dart';
+import 'package:tourism_app/provider/home/tourism_list_provider.dart';
 import 'package:tourism_app/screen/home/tourism_card_widget.dart';
 import 'package:tourism_app/static/navigation_route.dart';
+import 'package:tourism_app/static/tourism_list_result_state.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -12,34 +13,29 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  late Future<TourismListResponse> _tourismListResponse;
 
   @override
   void initState() {
     super.initState();
-    _tourismListResponse = ApiService().getTourismList();
+    Future.microtask((){
+      context.read<TourismListProvider>().fetchTourismList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Tourism List")),
-      body: FutureBuilder(
-        future: _tourismListResponse,
-        builder: (context, snapshot) {
-          switch (snapshot.connectionState) {
-            case ConnectionState.waiting:
-              return const Center(child: CircularProgressIndicator());
-            case ConnectionState.done:
-              if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error.toString()));
-              }
-
-              final listOfTourism = snapshot.data!.places;
-              return ListView.builder(
-                itemCount: listOfTourism.length,
+      body: Consumer<TourismListProvider>(
+        builder: (context, value, child) {
+          return switch (value.resultState) {
+            TourismListLoadingState() => const Center(
+                child: CircularProgressIndicator(),
+              ),
+            TourismListLoadedState(data: var tourismList) => ListView.builder(
+                itemCount: tourismList.length,
                 itemBuilder: (context, index) {
-                  final tourism = listOfTourism[index];
+                  final tourism = tourismList[index];
                   return TourismCard(
                     tourism: tourism,
                     onTap: () {
@@ -51,11 +47,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     },
                   );
                 },
-              );
-
-            default:
-              return const SizedBox();
-          }
+            ),
+            TourismListErrorState(error: var error) => Center(
+                child: Text(error),
+              ),
+            _ => SizedBox()
+          };  
         },
       )
     );
