@@ -1,19 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:tourism_app/provider/bookmark/local_database_provider.dart';
 import 'package:tourism_app/screen/home/tourism_card_widget.dart';
 import 'package:tourism_app/static/navigation_route.dart';
-import 'package:tourism_app/provider/bookmark/bookmark_list_provider.dart';
 
-class BookmarkScreen extends StatelessWidget {
+class BookmarkScreen extends StatefulWidget {
   const BookmarkScreen({super.key});
+
+  @override
+  State<BookmarkScreen> createState() => _BookmarkScreenState();
+}
+
+class _BookmarkScreenState extends State<BookmarkScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      if (mounted) {
+        context.read<LocalDatabaseProvider>().loadAllTourism();
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Bookmark List")),
-      body: Consumer<BookmarkListProvider>(
+      body: Consumer<LocalDatabaseProvider>(
         builder: (context, value, child) {
-          final bookmarkList = value.bookMarkList;
+          final bookmarkList = value.tourismList ?? [];
           return switch (bookmarkList.isNotEmpty) {
             true => ListView.builder(
               itemCount: bookmarkList.length,
@@ -32,11 +47,8 @@ class BookmarkScreen extends StatelessWidget {
               },
             ),
             _ => const Center(
-                child: Text(
-                  "No Bookmark",
-                  style: TextStyle(fontSize: 20),
-                ),
-              ),
+              child: Text("No Bookmark", style: TextStyle(fontSize: 20)),
+            ),
           };
         },
       ),
