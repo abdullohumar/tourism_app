@@ -30,4 +30,17 @@ class Tourism {
       image: json['image'],
     );
   }
+
+  Map<String, dynamic> toJson(){
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'address': address,
+      'latitude': latitude,
+      'longitude': longitude,
+      'like': like,
+      'image': image,
+    };
+  }
 }
