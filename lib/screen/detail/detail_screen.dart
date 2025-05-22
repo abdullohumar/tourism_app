@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:tourism_app/provider/detail/bookmark_icon_provider.dart';
-import 'package:tourism_app/provider/detail/tourism_detail_provider.dart';
+import 'package:tourism_app/provider/bookmark/bookmark_icon_provider.dart';
+import 'package:tourism_app/provider/bookmark/tourism_detail_provider.dart';
 import 'package:tourism_app/screen/detail/body_of_detail_screen_widget.dart';
 import 'package:tourism_app/screen/detail/bookmark_icon_widget.dart';
 import 'package:tourism_app/static/tourism_detail_result_state.dart';
